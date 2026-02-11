@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: Display & Video Campaign Manager API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /v1/partners:
+    get:
+      summary: List partners
+    post:
+      summary: Create partner
+  /v1/partners/{partnerId}:
+    get:
+      summary: Get partner
+    patch:
+      summary: Update partner
+  /v1/partners/{partnerId}:archive:
+    post:
+      summary: Archive partner
+
+  /v1/advertisers:
+    get:
+      summary: List advertisers
+    post:
+      summary: Create advertiser
+  /v1/advertisers/{advertiserId}:
+    get:
+      summary: Get advertiser
+    patch:
+      summary: Update advertiser
+  /v1/advertisers/{advertiserId}:archive:
+    post:
+      summary: Archive advertiser
+
+  /v1/campaigns:
+    get:
+      summary: List campaigns
+    post:
+      summary: Create campaign (and initial asset group)
+  /v1/campaigns/{campaignId}:
+    get:
+      summary: Get campaign
+    patch:
+      summary: Update campaign
+  /v1/campaigns/{campaignId}:activate:
+    post:
+      summary: Activate campaign
+  /v1/campaigns/{campaignId}:deactivate:
+    post:
+      summary: Deactivate campaign
+  /v1/campaigns/{campaignId}:archive:
+    post:
+      summary: Archive campaign
+
+  /v1/asset-groups:
+    get:
+      summary: List asset groups
+      parameters:
+        - name: campaignId
+          in: query
+          schema: { type: string }
+    post:
+      summary: Create asset group
+  /v1/asset-groups/{assetGroupId}:
+    get:
+      summary: Get asset group
+    patch:
+      summary: Update asset group
+  /v1/asset-groups/{assetGroupId}:archive:
+    post:
+      summary: Archive asset group
+
+  /v1/ads:
+    get:
+      summary: List ads
+      parameters:
+        - name: assetGroupId
+          in: query
+          schema: { type: string }
+    post:
+      summary: Create ad (file-based, multipart)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [assetGroupId, name, adType, inputType, file]
+              properties:
+                assetGroupId: { type: string }
+                name: { type: string }
+                adType: { type: string, enum: [DISPLAY, VIDEO] }
+                inputType: { type: string, enum: [DISPLAY_IMAGE, DISPLAY_HTML5_ZIP, VIDEO_FILE] }
+                landingUrl: { type: string }
+                brandUrl: { type: string }
+                sponsoredBy: { type: string }
+                ctaText: { type: string }
+                file: { type: string, format: binary }
+  /v1/ads/tag:
+    post:
+      summary: Create ad (tag-based, JSON)
+  /v1/ads/{adId}:
+    get:
+      summary: Get ad
+    patch:
+      summary: Update ad
+  /v1/ads/{adId}/content:
+    get:
+      summary: Get ad file bytes
+  /v1/ads/{adId}:archive:
+    post:
+      summary: Archive ad
+
+  /v1/reports/query:
+    post:
+      summary: Query reporting (rows + totals + timeSeries)
+
+components:
+  schemas:
+    ProblemDetails:
+      type: object
+      required: [type, title, status, detail, code]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        code: { type: string }
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }
+
+# Hierarchy: Partner → Advertiser → Campaign → AssetGroup → Ad
+# Ad includes adType (DISPLAY|VIDEO), inputType (file or tag), media stored in memory; GET /ads/{id}/content serves bytes.
