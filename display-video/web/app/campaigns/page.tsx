@@ -135,7 +135,6 @@ export default function CampaignsPage() {
   ];
 
   const handleCreateClick = () => {
-    if (!selection.advertiserId) return;
     router.push('/campaigns/new');
   };
 
@@ -144,12 +143,8 @@ export default function CampaignsPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-lg font-semibold text-slate-900">Campaigns</h1>
         <div className="flex items-center gap-2">
-          {!selection.advertiserId && (
-            <span className="text-xs text-amber-600">Select an advertiser to create a campaign.</span>
-          )}
           <button
             onClick={handleCreateClick}
-            disabled={!selection.advertiserId}
             className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Create Campaign
